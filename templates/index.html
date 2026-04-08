@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="zoho-style-landing fade-in">
+    <header class="premium-nav">
+        <div class="nav-left">
+            {% if logged_in %}
+                <a href="{{ url_for('dashboard') }}" class="nav-cta">Go to Dashboard</a>
+            {% else %}
+                <a href="{{ url_for('login') }}" class="nav-link">Login</a>
+                <a href="{{ url_for('signup') }}" class="nav-cta">Get Started Free</a>
+            {% endif %}
+        </div>
+        <div class="nav-right">
+            <button id="theme-toggle" class="btn-outline-small">☀️ Light Mode</button>
+            <a href="{{ url_for('updates') }}" class="nav-link">What's New</a>
+        </div>
+    </header>
+
+    <main class="hero-section">
+        <div class="hero-content">
+            <span class="badge-pill">FinTech Innovation 2026</span>
+            <h1 class="main-title">Pocket Track</h1>
+            <p class="main-motive">The most sophisticated way to manage personal capital without sacrificing privacy. Experience the future of fiscal clarity.</p>
+            <div class="hero-actions">
+                {% if logged_in %}
+                    <a href="{{ url_for('dashboard') }}" class="btn-primary-large">Return to Dashboard</a>
+                {% else %}
+                    <a href="{{ url_for('signup') }}" class="btn-primary-large">Create Private Account</a>
+                {% endif %}
+                <a href="#features" class="btn-outline-large">Explore Features</a>
+            </div>
+        </div>
+    </main>
+
+    <section id="features" class="features-grid">
+        <div class="feature-item glass-card">
+            <div class="icon-circle">🔒</div>
+            <h3>Privacy First</h3>
+            <p>Your data stays on your terms. We use zero-knowledge principles with recovery phrases instead of invasive emails.</p>
+        </div>
+        <div class="feature-item glass-card">
+            <div class="icon-circle">📊</div>
+            <h3>Visual Analytics</h3>
+            <p>Pivot your spending data across four dimensions of time with our proprietary glass-engine charts.</p>
+        </div>
+        <div class="feature-item glass-card">
+            <div class="icon-circle">⚡</div>
+            <h3>Sub-Second Entry</h3>
+            <p>Designed for speed. Adding an expense takes less than three seconds, keeping you focused on what matters.</p>
+        </div>
+    </section>
+</div>
+{% endblock %}

@@ -1,0 +1,297 @@
+{% extends 'base.html' %}
+{% block content %}
+<script>
+    window.USER_SALARY = {{ user.monthly_salary|default(0.0) }};
+    window.USER_GENDER = "{{ user.gender }}";
+    window.USER_NAME = "{{ user.name }}";
+</script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<div class="app-container fade-in">
+    <aside class="app-sidebar">
+        <a href="{{ url_for('index') }}" class="sidebar-brand" style="text-decoration: none; display: block; cursor: pointer;">Pocket Track</a>
+        <nav class="sidebar-nav">
+            <button class="nav-item active" data-view="dashboard">Overview</button>
+            <button class="nav-item" data-view="fixed">Fixed Bills</button>
+            <button class="nav-item" data-view="loans">Loans & EMIs</button>
+            <button class="nav-item" data-view="dreams">Dream Tracker</button>
+            <button class="nav-item" data-view="notifications">Messages</button>
+        </nav>
+        <div class="sidebar-footer">
+            <button id="theme-toggle" class="btn-outline-small" style="width: 100%; margin-bottom: 10px;">☀️ Light Mode</button>
+            <select id="global-currency" class="currency-select">
+                <option value="USD">USD ($)</option>
+                <option value="INR">INR (₹)</option>
+                <option value="EUR">EUR (€)</option>
+                <option value="GBP">GBP (£)</option>
+            </select>
+            <div class="profile-trigger" id="profile-trigger" data-view="profile">
+                <div class="user-badge">
+                    <img src="" alt="Profile" class="profile-pic-render" style="display: none;">
+                </div>
+                <div class="profile-info">
+                    <span class="profile-name" id="sidebar-profile-name">{{ user.name }}</span>
+                    <span class="profile-label">View Profile</span>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <main class="app-content">
+        <section id="view-dashboard" class="view-section active">
+            <header class="content-header">
+                <h2>Financial Overview</h2>
+                <button id="open-expense-modal" class="btn-primary-small">+ Add Expense</button>
+            </header>
+
+            <div class="super-savings-card glass-card">
+                <div class="savings-info">
+                    <h3>Super Savings</h3>
+                    <h1 id="super-savings-display">$0.00</h1>
+                    <p>Leftover from <span id="salary-display">$0.00</span> this month</p>
+                </div>
+                <button id="open-salary-modal" class="btn-outline-small">Update Salary</button>
+            </div>
+
+            <div class="chart-container glass-card">
+                <div class="chart-header">
+                    <h3>Spend Summary</h3>
+                    <select class="chart-select"><option>This Year</option></select>
+                </div>
+                <canvas id="spendChart"></canvas>
+            </div>
+            
+            <div class="metrics-grid">
+                <div class="metric-card glass-card">
+                    <div class="timeframe-tabs">
+                        <button class="tab-btn active" data-time="daily">Day</button>
+                        <button class="tab-btn" data-time="weekly">Week</button>
+                        <button class="tab-btn" data-time="monthly">Month</button>
+                        <button class="tab-btn" data-time="yearly">Year</button>
+                    </div>
+                    <h1 id="total-display">$0.00</h1>
+                    <ul id="expense-list" class="mini-list"></ul>
+                </div>
+            </div>
+        </section>
+
+        <section id="view-fixed" class="view-section">
+            <header class="content-header">
+                <h2>Fixed Bills & Subscriptions</h2>
+                <button id="open-fixed-modal" class="btn-primary-small">+ Add Fixed Bill</button>
+            </header>
+            <div id="fixed-container" class="cards-grid"></div>
+        </section>
+
+        <section id="view-loans" class="view-section">
+            <header class="content-header">
+                <h2>Active Loans & EMIs</h2>
+                <button id="open-loan-modal" class="btn-primary-small">+ Add Loan</button>
+            </header>
+            <div id="loans-container" class="cards-grid"></div>
+        </section>
+
+        <section id="view-dreams" class="view-section">
+            <header class="content-header">
+                <h2>Dream Tracker</h2>
+                <button id="open-dream-modal" class="btn-primary-small">+ New Dream</button>
+            </header>
+            <div id="dreams-container" class="cards-grid"></div>
+        </section>
+
+        <section id="view-notifications" class="view-section">
+            <header class="content-header">
+                <h2>System Messages</h2>
+            </header>
+            <div id="notifications-container" class="list-container glass-card"></div>
+        </section>
+
+        <section id="view-profile" class="view-section">
+            <header class="content-header">
+                <h2>User Settings</h2>
+            </header>
+            <div class="profile-grid">
+                <div class="profile-card glass-card">
+                    <div class="avatar-wrapper">
+                        <div class="large-avatar">
+                            <img src="" alt="Profile" class="profile-pic-render" style="display: none;">
+                        </div>
+                        <label for="avatar-upload" class="edit-avatar-btn">✏️ Update Photo</label>
+                        <input type="file" id="avatar-upload" accept="image/*" style="display: none;">
+                    </div>
+                    <div class="profile-details">
+                        <h3 id="profile-display-name">{{ user.name }}</h3>
+                        <p id="profile-display-username">@{{ user.username }}</p>
+                        <button id="open-edit-profile-modal" class="btn-outline-small mt-10">✏️ Edit Details</button>
+                    </div>
+                    <div class="profile-actions-area">
+                        <a href="{{ url_for('logout') }}" class="btn-logout-massive">Logout of Pocket Track</a>
+                        <button id="delete-account-btn" class="btn-delete-massive">Delete Account Permanently</button>
+                    </div>
+                </div>
+                <div class="quote-card glass-card">
+                    <div class="quote-mark">“</div>
+                    <p class="quote-text">The single most important thing is to make your money work as hard for you as you did to earn it. Step by step, calculated choice by calculated choice, the journey to true financial freedom begins.</p>
+                    <div class="quote-author">— Pocket Track Philosophy</div>
+                </div>
+            </div>
+        </section>
+    </main>
+</div>
+
+<div id="salary-modal" class="modal">
+    <div class="modal-content premium-modal glass-card">
+        <div class="modal-header">
+            <h2>Update Salary</h2>
+        </div>
+        <form id="salary-form" class="premium-form">
+            <div class="form-group">
+                <label>In-Hand Monthly Salary</label>
+                <input type="number" step="0.01" id="monthly_salary_input" placeholder="0.00" required>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="close-modal btn-outline-small">Cancel</button>
+                <button type="submit" class="btn-primary-small">Save Salary</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="fixed-modal" class="modal">
+    <div class="modal-content premium-modal glass-card">
+        <div class="modal-header">
+            <h2>Add Fixed Bill</h2>
+        </div>
+        <form id="fixed-form" class="premium-form">
+            <div class="form-group">
+                <label>Bill Name</label>
+                <input type="text" id="fixed_name" placeholder="e.g. Electricity, Netflix" required>
+            </div>
+            <div class="form-group">
+                <label>Amount</label>
+                <input type="number" step="0.01" id="fixed_amount" placeholder="0.00" required>
+            </div>
+            <div class="form-group">
+                <label>Category</label>
+                <input type="text" id="fixed_category" placeholder="e.g. Utilities, Entertainment" required>
+            </div>
+            <div class="form-group">
+                <label>Due Date (Day of Month)</label>
+                <input type="number" min="1" max="31" id="fixed_due_day" placeholder="e.g. 5" required>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="close-modal btn-outline-small">Cancel</button>
+                <button type="submit" class="btn-primary-small">Save Bill</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="edit-profile-modal" class="modal">
+    <div class="modal-content premium-modal glass-card">
+        <div class="modal-header">
+            <h2>Edit Profile</h2>
+        </div>
+        <form id="edit-profile-form" class="premium-form">
+            <div class="form-group">
+                <label>Full Name</label>
+                <input type="text" id="edit_name" placeholder="Leave blank to keep current">
+            </div>
+            <div class="form-group">
+                <label>Username</label>
+                <input type="text" id="edit_username" placeholder="Leave blank to keep current">
+            </div>
+            <div class="form-group">
+                <label>New Password</label>
+                <input type="password" id="edit_password" placeholder="Leave blank to keep current">
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="close-modal btn-outline-small">Cancel</button>
+                <button type="submit" class="btn-primary-small">Save Changes</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="expense-modal" class="modal">
+    <div class="modal-content premium-modal glass-card">
+        <div class="modal-header">
+            <h2>Add New Expense</h2>
+        </div>
+        <form id="expense-form" class="premium-form">
+            <div class="form-group">
+                <label>Expense Title</label>
+                <input type="text" id="item_name" placeholder="e.g. Groceries, Uber" required>
+            </div>
+            <div class="form-group">
+                <label>Amount</label>
+                <input type="number" step="0.01" id="amount" placeholder="0.00" required>
+            </div>
+            <div class="form-group">
+                <label>Category</label>
+                <input type="text" id="category" placeholder="e.g. Food, Transport" required>
+            </div>
+            <div class="form-group">
+                <label>Date</label>
+                <input type="date" id="date" required>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="close-modal btn-outline-small">Cancel</button>
+                <button type="submit" class="btn-primary-small">Save Expense</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="loan-modal" class="modal">
+    <div class="modal-content premium-modal glass-card">
+        <div class="modal-header">
+            <h2>Register New Loan</h2>
+        </div>
+        <form id="loan-form" class="premium-form">
+            <div class="form-group">
+                <label>Bank / Provider Name</label>
+                <input type="text" id="loan_name" placeholder="e.g. Chase Bank Auto Loan" required>
+            </div>
+            <div class="form-group">
+                <label>Total Principal Amount</label>
+                <input type="number" step="0.01" id="total_amount" placeholder="0.00" required>
+            </div>
+            <div class="form-group">
+                <label>Monthly EMI</label>
+                <input type="number" step="0.01" id="emi_amount" placeholder="0.00" required>
+            </div>
+            <div class="form-group">
+                <label>Due Date (Day of Month)</label>
+                <input type="number" min="1" max="31" id="due_date" placeholder="e.g. 15" required>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="close-modal btn-outline-small">Cancel</button>
+                <button type="submit" class="btn-primary-small">Save Loan</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="dream-modal" class="modal">
+    <div class="modal-content premium-modal glass-card">
+        <div class="modal-header">
+            <h2>Set a Financial Goal</h2>
+        </div>
+        <form id="dream-form" class="premium-form">
+            <div class="form-group">
+                <label>Goal Name</label>
+                <input type="text" id="target_name" placeholder="e.g. Dream Car, Europe Trip" required>
+            </div>
+            <div class="form-group">
+                <label>Target Amount</label>
+                <input type="number" step="0.01" id="target_amount" placeholder="0.00" required>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="close-modal btn-outline-small">Cancel</button>
+                <button type="submit" class="btn-primary-small">Save Goal</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

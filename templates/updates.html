@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="zoho-style-landing fade-in">
+    <header class="premium-nav">
+        <div class="nav-left">
+            <a href="{{ url_for('index') }}" class="sidebar-brand" style="text-decoration: none;">Pocket Track</a>
+        </div>
+        <div class="nav-right">
+            <button id="theme-toggle" class="btn-outline-small">☀️ Light Mode</button>
+            <a href="{{ url_for('index') }}" class="nav-link">Back to Home</a>
+        </div>
+    </header>
+
+    <main class="hero-section" style="padding-top: 50px; padding-bottom: 20px;">
+        <div class="hero-content">
+            <span class="badge-pill">Changelog</span>
+            <h1 class="main-title" style="font-size: 56px;">System Updates</h1>
+            <p class="main-motive">Track the evolution of your personal financial engine.</p>
+        </div>
+    </main>
+
+    <div class="updates-container">
+        <div class="timeline">
+            <div class="update-card glass-card">
+                <div class="date-badge">v1.1.0 - Current</div>
+                <h2>Minimalist UI Engine</h2>
+                <ul>
+                    <li>Deep integrated backdrop-filters for all authenticated routes.</li>
+                    <li>Navigation shifted to strict top-left alignment.</li>
+                    <li>Removed all clutter for a pure, distraction-free landing.</li>
+                    <li>Added Global Dark/Light mode engine.</li>
+                </ul>
+            </div>
+            
+            <div class="update-card glass-card">
+                <div class="date-badge">v1.0.5</div>
+                <h2>Cryptographic Recovery Protocol</h2>
+                <ul>
+                    <li>Implemented the 8-word randomized recovery phrase matrix.</li>
+                    <li>Enforced strict session clearing upon initial phrase generation.</li>
+                    <li>Added visual freeze-states until manual user acknowledgement.</li>
+                </ul>
+            </div>
+            
+            <div class="update-card glass-card">
+                <div class="date-badge">v1.0.0</div>
+                <h2>Genesis Block</h2>
+                <ul>
+                    <li>Core SQLite database models established.</li>
+                    <li>Basic CRUD operations for expense tracking implemented.</li>
+                    <li>Initial deployment of the Pocket Track architecture.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

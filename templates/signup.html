@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="auth-wrapper fade-in">
+    <div class="glass-panel" style="max-width: 450px;">
+        
+        <div style="text-align: center; margin-bottom: 20px;">
+            <div class="icon-circle" style="margin: 0 auto 15px auto; width: 60px; height: 60px; font-size: 28px; background: rgba(56, 189, 248, 0.1); border-color: rgba(56, 189, 248, 0.3);">
+                ✨
+            </div>
+            <h2 style="font-size: 26px; font-weight: 800; color: #f8fafc; margin-bottom: 10px;">Create Account</h2>
+            <p style="color: #94a3b8; font-size: 14px; line-height: 1.5;">
+                Start tracking your financial future.
+            </p>
+        </div>
+
+        {% if error %}
+        <div class="error-msg fade-in">
+            ⚠️ {{ error }}
+        </div>
+        {% endif %}
+
+        <form action="{{ url_for('signup') }}" method="POST" class="auth-form">
+            <div style="margin-bottom: 15px;">
+                <label style="color: rgba(255, 255, 255, 0.7);">Full Name</label>
+                <input type="text" name="name" placeholder="e.g. Alex Sharma" required style="color: #fff;">
+            </div>
+
+            <div style="margin-bottom: 15px;">
+                <label style="color: rgba(255, 255, 255, 0.7);">Gender</label>
+                <select name="gender" required style="width: 100%; background: rgba(255, 255, 255, 0.05); border: 1px solid transparent; padding: 14px 16px; border-radius: 8px; color: #94a3b8; font-size: 15px; outline: none; margin-bottom: 20px;">
+                    <option value="male" style="background: #0f172a; color: #fff;">Male</option>
+                    <option value="female" style="background: #0f172a; color: #fff;">Female</option>
+                </select>
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <label style="color: rgba(255, 255, 255, 0.7);">Username</label>
+                <input type="text" name="username" placeholder="e.g. alex_sharma" required style="color: #fff;">
+            </div>
+            
+            <div style="margin-bottom: 25px;">
+                <label style="color: rgba(255, 255, 255, 0.7);">Password</label>
+                <input type="password" name="password" placeholder="Create a strong password" required style="color: #fff;">
+            </div>
+            
+            <button type="submit" class="btn-auth" style="box-shadow: 0 10px 25px rgba(0, 102, 255, 0.4); font-size: 15px; padding: 16px;">
+                Create Private Account
+            </button>
+        </form>
+        
+        <div class="auth-footer">
+            <a href="{{ url_for('login') }}" style="font-size: 14px; font-weight: 600;">Already have an account? Login</a>
+        </div>
+        
+    </div>
+</div>
+{% endblock %}
