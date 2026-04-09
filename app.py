@@ -8,9 +8,14 @@ from datetime import datetime, timedelta
 app = Flask(__name__)
 app.secret_key = 'super_secret_key_pocket_track'
 
+# Fetch Cloud DB URL if on Vercel, otherwise use local SQLite
 db_url = os.environ.get('DATABASE_URL', 'sqlite:///pocket_track.db')
+
+# Force Vercel to use the pg8000 pure-python driver
 if db_url.startswith("postgres://"):
-    db_url = db_url.replace("postgres://", "postgresql://", 1)
+    db_url = db_url.replace("postgres://", "postgresql+pg8000://", 1)
+elif db_url.startswith("postgresql://"):
+    db_url = db_url.replace("postgresql://", "postgresql+pg8000://", 1)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = db_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -69,7 +74,8 @@ class Notification(db.Model):
 def index():
     is_logged_in = False
     if 'user_id' in session:
-        if User.query.get(session['user_id']):
+        # UPDATED TO NEW SQLALCHEMY 2.0 SYNTAX
+        if db.session.get(User, session['user_id']):
             is_logged_in = True
         else:
             session.pop('user_id', None)
@@ -158,7 +164,8 @@ def dashboard():
     if 'user_id' not in session:
         return redirect(url_for('login'))
     
-    user = User.query.get(session['user_id'])
+    # UPDATED TO NEW SQLALCHEMY 2.0 SYNTAX
+    user = db.session.get(User, session['user_id'])
     
     if not user:
         session.pop('user_id', None)
@@ -190,7 +197,10 @@ def dashboard():
 @app.route('/api/user', methods=['PUT'])
 def update_user():
     if 'user_id' not in session: return jsonify({"error": "Unauthorized"}), 401
-    user = User.query.get(session['user_id'])
+    
+    # UPDATED TO NEW SQLALCHEMY 2.0 SYNTAX
+    user = db.session.get(User, session['user_id'])
+    
     if not user: return jsonify({"error": "Not found"}), 404
     data = request.json
     
@@ -334,7 +344,10 @@ def handle_dreams():
         return jsonify({"success": True})
     if request.method == 'PUT':
         data = request.json
-        dream = Dream.query.get(data['id'])
+        
+        # UPDATED TO NEW SQLALCHEMY 2.0 SYNTAX
+        dream = db.session.get(Dream, data['id'])
+        
         if dream and dream.user_id == user_id:
             new_amount = dream.saved_amount + float(data['add_amount'])
             dream.saved_amount = max(0.0, new_amount) 
@@ -358,7 +371,7 @@ def get_notifications():
 @app.route('/api/expenses/<int:id>', methods=['DELETE'])
 def delete_expense(id):
     if 'user_id' not in session: return jsonify({"error": "Unauthorized"}), 401
-    item = Expense.query.get(id)
+    item = db.session.get(Expense, id) # UPDATED
     if item and item.user_id == session['user_id']:
         db.session.delete(item)
         db.session.commit()
@@ -368,7 +381,7 @@ def delete_expense(id):
 @app.route('/api/fixed_expenses/<int:id>', methods=['DELETE'])
 def delete_fixed_expense(id):
     if 'user_id' not in session: return jsonify({"error": "Unauthorized"}), 401
-    item = FixedExpense.query.get(id)
+    item = db.session.get(FixedExpense, id) # UPDATED
     if item and item.user_id == session['user_id']:
         db.session.delete(item)
         db.session.commit()
@@ -378,7 +391,7 @@ def delete_fixed_expense(id):
 @app.route('/api/loans/<int:id>', methods=['DELETE'])
 def delete_loan(id):
     if 'user_id' not in session: return jsonify({"error": "Unauthorized"}), 401
-    item = Loan.query.get(id)
+    item = db.session.get(Loan, id) # UPDATED
     if item and item.user_id == session['user_id']:
         db.session.delete(item)
         db.session.commit()
@@ -388,7 +401,7 @@ def delete_loan(id):
 @app.route('/api/dreams/<int:id>', methods=['DELETE'])
 def delete_dream(id):
     if 'user_id' not in session: return jsonify({"error": "Unauthorized"}), 401
-    item = Dream.query.get(id)
+    item = db.session.get(Dream, id) # UPDATED
     if item and item.user_id == session['user_id']:
         db.session.delete(item)
         db.session.commit()
@@ -398,7 +411,7 @@ def delete_dream(id):
 @app.route('/api/notifications/<int:id>', methods=['DELETE'])
 def delete_notification(id):
     if 'user_id' not in session: return jsonify({"error": "Unauthorized"}), 401
-    item = Notification.query.get(id)
+    item = db.session.get(Notification, id) # UPDATED
     if item and item.user_id == session['user_id']:
         db.session.delete(item)
         db.session.commit()
