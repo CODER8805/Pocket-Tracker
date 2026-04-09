@@ -1,4 +1,5 @@
 import random
+import os
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -6,7 +7,12 @@ from datetime import datetime, timedelta
 
 app = Flask(__name__)
 app.secret_key = 'super_secret_key_pocket_track'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///pocket_track.db'
+
+db_url = os.environ.get('DATABASE_URL', 'sqlite:///pocket_track.db')
+if db_url.startswith("postgres://"):
+    db_url = db_url.replace("postgres://", "postgresql://", 1)
+
+app.config['SQLALCHEMY_DATABASE_URI'] = db_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
